@@ -42,4 +42,10 @@ dependencies {
     androidTestImplementation(libs.espresso.core)
     implementation("androidx.navigation:navigation-fragment:2.5.3")
     implementation("androidx.navigation:navigation-ui:2.5.3")
+    implementation("androidx.room:room-runtime:2.5.1")
+    annotationProcessor("androidx.room:room-compiler:2.5.1")
+    implementation("com.squareup.picasso:picasso:2.71828")
+    implementation("com.google.code.gson:gson:2.10")
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
 }
