@@ -1,4 +1,4 @@
-package com.example.kursovaya_igdb;
+package com.example.kursovaya_igdb.ui;
 
 import android.os.Bundle;
 import android.view.WindowManager;
@@ -12,6 +12,7 @@ import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.NavigationUI;
 
+import com.example.kursovaya_igdb.R;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class MainActivity extends AppCompatActivity {
