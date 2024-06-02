@@ -39,7 +39,7 @@ public class GamesDataSource extends BaseGamesDataSource {
                 TOKEN_API_VALUE,
                 body);
 
-        gameApiResponseCall.enqueue(new Callback<List<GameApiResponse>>() {
+        /*gameApiResponseCall.enqueue(new Callback<List<GameApiResponse>>() {
             @Override
             public void onResponse(@NonNull Call<List<GameApiResponse>> call, @NonNull Response<List<GameApiResponse>> response) {
                 if (response.body() != null && response.isSuccessful()) {
@@ -54,7 +54,7 @@ public class GamesDataSource extends BaseGamesDataSource {
             public void onFailure(@NonNull Call<List<GameApiResponse>> call, @NonNull Throwable t) {
                 Log.e(getClass().getSimpleName(), t.getMessage());
             }
-        });
+        });*/
     }
 
     @Override
