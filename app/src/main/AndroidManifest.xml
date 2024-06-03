@@ -13,6 +13,15 @@
         android:theme="@style/Theme.Kursovaya_igdb"
         tools:targetApi="31">
         <activity
+            android:name=".ui.gameDetails.GenreActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.gameDetails.FranchiseActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.gameDetails.CompanyActivity"
+            android:exported="false" />
+        <activity
             android:name=".ui.gameDetails.GameActivity"
             android:exported="false" />
         <activity

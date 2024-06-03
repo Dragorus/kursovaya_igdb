@@ -36,4 +36,23 @@
     <string name="gameCover">Game\'s cover</string>
     <string name="Unreleased">Unreleased</string>
     <string name="related_games">Related Games</string>
+    <string name="NoRating">No rating available</string>
+    <string name="no_platforms">No platforms available</string>
+
+    <!-- PlayVideoDialogFragment -->
+    <string name="cancel_text">Cancel</string>
+    <string name="confirm_text">Confirm</string>
+    <string name="video_choose">What do you want to watch?</string>
+
+    <!-- FranchiseActivity -->
+    <string name="sort_by_dialog_title">Sort by</string>
+    <string name="no_connection_message">No internet connection, functionalities are limited</string>
+    <string-array name="sorting_parameters">
+        <item>Most popular</item>
+        <item>Most recent</item>
+        <item>Best rating</item>
+        <item>Alphabet</item>
+    </string-array>
+
+
 </resources>
