@@ -25,4 +25,15 @@
     <string name="wanted">Wanted</string>
     <string name="playing">Playing</string>
     <string name="playeds">Played</string>
+
+    <!-- GameActivity -->
+    <string name="played">Played</string>
+    <string name="genres">Genres</string>
+    <string name="platforms">Platforms</string>
+    <string name="franchise">FRANCHISE</string>
+    <string name="description">Description</string>
+    <string name="company">COMPANY</string>
+    <string name="gameCover">Game\'s cover</string>
+    <string name="Unreleased">Unreleased</string>
+    <string name="related_games">Related Games</string>
 </resources>
