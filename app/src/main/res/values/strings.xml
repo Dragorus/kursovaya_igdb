@@ -54,5 +54,6 @@
         <item>Alphabet</item>
     </string-array>
 
-
+    <!-- Wanted, Playing, Played fragments -->
+    <string name="no_game">The list is empty!\nStart saving some games!</string>
 </resources>
