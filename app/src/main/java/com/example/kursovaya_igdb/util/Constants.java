@@ -13,4 +13,8 @@ public class Constants {
 
     public static final String CONTENT_TYPE = "Content-Type";
     public static final String CONTENT_TYPE_VALUE = "application/json;charset=utf-8";
+
+    public static final String ENCRYPTED_SHARED_PREFERENCES_FILE_NAME = "com.example.kursovaya_igdb.encrypted_preferences";
+    public static final String SHARED_PREFERENCES_FILE_NAME = "com.example.kursovaya_igdb.preferences";
+    public static final String ENCRYPTED_DATA_FILE_NAME = "com.example.kursovaya_igdb.encrypted_file.txt";
 }

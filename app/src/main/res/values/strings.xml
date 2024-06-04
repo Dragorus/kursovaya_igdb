@@ -56,4 +56,89 @@
 
     <!-- Wanted, Playing, Played fragments -->
     <string name="no_game">The list is empty!\nStart saving some games!</string>
+
+    <!-- SearchFragment -->
+    <string name="no_connection">No connection</string>
+    <string-array name="platforms">
+        <item>Any platform</item>
+        <item>Android</item>
+        <item>PC (Microsoft Windows)</item>
+        <item>PlayStation</item>
+        <item>PlayStation 2</item>
+        <item>PlayStation 3</item>
+        <item>PlayStation 4</item>
+        <item>PlayStation 5</item>
+        <item>Wii U</item>
+        <item>Xbox</item>
+        <item>Xbox 360</item>
+        <item>Xbox One</item>
+        <item>Apple II</item>
+        <item>Apple IIGS</item>
+        <item>BlackBerry OS</item>
+        <item>Commodore Plus/4</item>
+        <item>DOS</item>
+        <item>Game Boy</item>
+        <item>Game Boy Advance</item>
+        <item>Game Boy Color</item>
+        <item>Google Stadia</item>
+        <item>iOS</item>
+        <item>Linux</item>
+        <item>Mac</item>
+        <item>Nintendo Switch</item>
+        <item>Nintendo DSi</item>
+        <item>Nintendo Entertainment System</item>
+        <item>Nintendo 3DS</item>
+        <item>Nintendo 64</item>
+        <item>Nintendo PlayStation</item>
+        <item>Nintendo DS</item>
+        <item>Nintendo GameCube</item>
+        <item>New Nintendo 3DS</item>
+        <item>Oculus Go</item>
+        <item>Oculus Rift</item>
+        <item>Oculus Quest</item>
+        <item>PlayStation Portable</item>
+        <item>PlayStation Vita</item>
+        <item>PlayStation VR</item>
+        <item>PlayStation VR2</item>
+        <item>SteamVR</item>
+        <item>Wii</item>
+        <item>Web browser</item>
+        <item>Windows Mobile</item>
+        <item>Windows Mixed Reality</item>
+        <item>Windows Phone</item>
+    </string-array>
+
+    <string-array name="genres">
+        <item>Any genre</item>
+        <item>Arcade</item>
+        <item>Fighting</item>
+        <item>Hack and slash/Beat \'em up</item>
+        <item>Music</item>
+        <item>Platform</item>
+        <item>Pinball</item>
+        <item>Point-and-click</item>
+        <item>Puzzle</item>
+        <item>Quiz/Trivia</item>
+        <item>Racing</item>
+        <item>Real Time Strategy (RTS)</item>
+        <item>Role-playing (RPG)</item>
+        <item>Simulator</item>
+        <item>Shooter</item>
+        <item>Sport</item>
+        <item>Strategy</item>
+        <item>Tactical</item>
+        <item>Turn-based strategy (TBS)</item>
+
+    </string-array>
+
+    <string name="any_genre">Any genre</string>
+    <string name="any_platform">Any platform</string>
+    <string name="any_year">Any year</string>
+    <string name="search_filters_dialog_title">Search Filters</string>
+
+    <!-- dialog_filters -->
+    <string name="genre_text">Genre</string>
+    <string name="platform_text">Platform</string>
+    <string name="release_year_text">Release Year</string>
+
 </resources>

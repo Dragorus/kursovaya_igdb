@@ -1,6 +1,17 @@
 package com.example.kursovaya_igdb.util;
 
+import static com.example.kursovaya_igdb.util.Constants.ENCRYPTED_SHARED_PREFERENCES_FILE_NAME;
+
+import android.app.Application;
+
+import com.example.kursovaya_igdb.database.GamesRoomDatabase;
+import com.example.kursovaya_igdb.repository.GamesRepository;
+import com.example.kursovaya_igdb.repository.IGamesRepository;
 import com.example.kursovaya_igdb.service.GamesApiService;
+import com.example.kursovaya_igdb.source.BaseGamesDataSource;
+import com.example.kursovaya_igdb.source.BaseGamesLocalDataSource;
+import com.example.kursovaya_igdb.source.GamesDataSource;
+import com.example.kursovaya_igdb.source.GamesLocalDataSource;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -31,5 +42,17 @@ public class ServiceLocator {
                 .addConverterFactory(GsonConverterFactory.create()).build();
 
         return retrofit.create(GamesApiService.class);
+    }
+    public GamesRoomDatabase getGamesDao(Application application) {
+        return GamesRoomDatabase.getDatabase(application);
+    }
+    public IGamesRepository getGamesRepository(Application application) throws GeneralSecurityException, IOException {
+        SharedPreferencesUtil sharedPreferencesUtil = new SharedPreferencesUtil(application);
+        BaseGamesDataSource gamesDataSource;
+        BaseGamesLocalDataSource gamesLocalDataSource;
+        DataEncryptionUtil dataEncryptionUtil = new DataEncryptionUtil(application);
+        gamesDataSource = new GamesDataSource();
+        gamesLocalDataSource = new GamesLocalDataSource(getGamesDao(application), sharedPreferencesUtil, dataEncryptionUtil);
+        return new GamesRepository(gamesDataSource, gamesLocalDataSource);
     }
 }

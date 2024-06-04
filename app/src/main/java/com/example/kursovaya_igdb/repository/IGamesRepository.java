@@ -11,6 +11,7 @@ public interface IGamesRepository {
     MutableLiveData<List<GameApiResponse>> fetchBestGames(long lastUpdate, boolean networkAvailable);
     MutableLiveData<List<GameApiResponse>> fetchLatestGames(long lastUpdate, boolean networkAvailable);
     MutableLiveData<List<GameApiResponse>> fetchIncomingGames(long lastUpdate, boolean networkAvailable);
+    MutableLiveData<GameApiResponse> fetchGame(int id);
     MutableLiveData<List<GameApiResponse>> fetchExploreGames(boolean networkAvailable);
     MutableLiveData<List<GameApiResponse>> fetchCompanyGames(String company);
     MutableLiveData<List<GameApiResponse>> fetchFranchiseGames(String franchise);

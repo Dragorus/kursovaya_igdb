@@ -9,15 +9,16 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.example.kursovaya_igdb.model.GameApiResponse;
 import com.example.kursovaya_igdb.source.BaseGamesDataSource;
+import com.example.kursovaya_igdb.source.BaseGamesLocalDataSource;
 import com.example.kursovaya_igdb.source.GameCallback;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
 public class GamesRepository implements IGamesRepository, GameCallback {
     private final BaseGamesDataSource gamesDataSource;
+    private final BaseGamesLocalDataSource gamesLocalDataSource;
     private final MutableLiveData<List<GameApiResponse>> allGames = new MutableLiveData<>();
     private final MutableLiveData<List<GameApiResponse>> popularGames = new MutableLiveData<>();
     private final MutableLiveData<List<GameApiResponse>> bestGames = new MutableLiveData<>();
@@ -27,6 +28,10 @@ public class GamesRepository implements IGamesRepository, GameCallback {
     private final MutableLiveData<List<GameApiResponse>> exploreGames;
     private final MutableLiveData<List<GameApiResponse>> companyGames = new MutableLiveData<>();
     private final MutableLiveData<List<GameApiResponse>> franchiseGames = new MutableLiveData<>();
+    private final MutableLiveData<List<GameApiResponse>> wantedGamesMutableLiveData;
+    private final MutableLiveData<List<GameApiResponse>> playingGamesMutableLiveData;
+    private final MutableLiveData<List<GameApiResponse>> playedGamesMutableLiveData;
+    private final MutableLiveData<List<GameApiResponse>> forYouGamesMutableLiveData;
     private final MutableLiveData<List<GameApiResponse>> genreGamesMutableLiveData;
     private final MutableLiveData<List<GameApiResponse>> searchedGamesMutableLiveData;
     private final MutableLiveData<List<GameApiResponse>> filteredGamesMutableLiveData;
@@ -36,8 +41,13 @@ public class GamesRepository implements IGamesRepository, GameCallback {
     private final MutableLiveData<List<GameApiResponse>> allLatestGames;
     private final MutableLiveData<List<GameApiResponse>> allIncomingGames;
 
-    public GamesRepository(BaseGamesDataSource gamesDataSource) {
+    public GamesRepository(BaseGamesDataSource gamesDataSource, BaseGamesLocalDataSource gamesLocalDataSource) {
         this.gamesDataSource = gamesDataSource;
+        this.gamesLocalDataSource = gamesLocalDataSource;
+        this.wantedGamesMutableLiveData = new MutableLiveData<>();
+        this.playingGamesMutableLiveData = new MutableLiveData<>();
+        this.playedGamesMutableLiveData = new MutableLiveData<>();
+        this.forYouGamesMutableLiveData = new MutableLiveData<>();
         this.genreGamesMutableLiveData = new MutableLiveData<>();
         this.searchedGamesMutableLiveData = new MutableLiveData<>();
         this.filteredGamesMutableLiveData = new MutableLiveData<>();
@@ -48,6 +58,7 @@ public class GamesRepository implements IGamesRepository, GameCallback {
         this.allLatestGames = new MutableLiveData<>();
         this.allIncomingGames = new MutableLiveData<>();
         this.gamesDataSource.setGameCallback(this);
+        this.gamesLocalDataSource.setGameCallback(this);
     }
 
     @Override
@@ -55,6 +66,8 @@ public class GamesRepository implements IGamesRepository, GameCallback {
         long currentTime = System.currentTimeMillis();
         if (currentTime - lastUpdate > FRESH_TIMEOUT && networkAvailable) {
             gamesDataSource.getPopularGames();
+        } else {
+            gamesLocalDataSource.getPopularGames();
         }
         return popularGames;
     }
@@ -64,6 +77,8 @@ public class GamesRepository implements IGamesRepository, GameCallback {
         long currentTime = System.currentTimeMillis();
         if (currentTime - lastUpdate > FRESH_TIMEOUT && networkAvailable) {
             gamesDataSource.getBestGames();
+        } else {
+            gamesLocalDataSource.getBestGames();
         }
         return bestGames;
     }
@@ -73,6 +88,8 @@ public class GamesRepository implements IGamesRepository, GameCallback {
         long currentTime = System.currentTimeMillis();
         if (currentTime - lastUpdate > FRESH_TIMEOUT && networkAvailable) {
             gamesDataSource.getLatestGames();
+        } else {
+            gamesLocalDataSource.getLatestGames();
         }
         return latestGames;
     }
@@ -82,15 +99,24 @@ public class GamesRepository implements IGamesRepository, GameCallback {
         long currentTime = System.currentTimeMillis();
         if (currentTime - lastUpdate > FRESH_TIMEOUT && networkAvailable) {
             gamesDataSource.getIncomingGames();
+        } else {
+            gamesLocalDataSource.getIncomingGames();
         }
         return incomingGames;
     }
 
+    @Override
+    public MutableLiveData<GameApiResponse> fetchGame(int id) {
+        gamesLocalDataSource.getGame(id);
+        return game;
+    }
 
     @Override
     public MutableLiveData<List<GameApiResponse>> fetchExploreGames(boolean networkAvailable) {
         if (networkAvailable) {
             gamesDataSource.getExploreGames();
+        } else {
+            gamesLocalDataSource.getExploreGames();
         }
         return exploreGames;
     }
@@ -112,7 +138,6 @@ public class GamesRepository implements IGamesRepository, GameCallback {
         gamesDataSource.getGenreGames(genre);
         return genreGamesMutableLiveData;
     }
-
 
     @Override
     public MutableLiveData<List<GameApiResponse>> getSearchedGames(String userInput) {
@@ -157,6 +182,12 @@ public class GamesRepository implements IGamesRepository, GameCallback {
             gamesDataSource.getFilteredGames(genre, platform, year);
         }
         return filteredGamesMutableLiveData;
+    }
+
+
+    @Override
+    public void onSuccessFromRemote(List<GameApiResponse> gameApiResponse, String i) {
+        gamesLocalDataSource.insertGames(gameApiResponse, i);
     }
 
     @Override
@@ -204,6 +235,18 @@ public class GamesRepository implements IGamesRepository, GameCallback {
             case "SIMILAR":
                 similarGamesMutableLiveData.postValue(gameApiResponses);
                 break;
+            case "WANTED":
+                wantedGamesMutableLiveData.postValue(gameApiResponses);
+                break;
+            case "PLAYING":
+                playingGamesMutableLiveData.postValue(gameApiResponses);
+                break;
+            case "PLAYED":
+                playedGamesMutableLiveData.postValue(gameApiResponses);
+                break;
+            case "FORYOU":
+                forYouGamesMutableLiveData.postValue(gameApiResponses);
+                break;
             case "ALLPOPULAR":
                 allPopularGames.postValue(gameApiResponses);
                 break;
@@ -224,6 +267,7 @@ public class GamesRepository implements IGamesRepository, GameCallback {
         Log.i("tutto", "eliminato");
     }
 
+
     @Override
     public void onSuccessFromCloudReading(List<GameApiResponse> games, String wanted) {
         if (games != null) {
@@ -235,7 +279,22 @@ public class GamesRepository implements IGamesRepository, GameCallback {
                 Collections.sort(games, Comparator.comparing(GameApiResponse::getAdded));
             }
         }
+        switch (wanted) {
+            case "WANTED":
+                gamesLocalDataSource.insertGames(games, "WANTED");
+                wantedGamesMutableLiveData.postValue(games);
+                break;
+            case "PLAYING":
+                gamesLocalDataSource.insertGames(games, "PLAYING");
+                playingGamesMutableLiveData.postValue(games);
+                break;
+            case "PLAYED":
+                gamesLocalDataSource.insertGames(games, "PLAYED");
+                playedGamesMutableLiveData.postValue(games);
+                break;
+        }
     }
+
 
     @Override
     public void onFailureFromCloud(Exception e) {

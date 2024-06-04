@@ -15,9 +15,9 @@
         <action
             android:id="@+id/action_homeFragment_to_searchFragment"
             app:destination="@id/searchFragment" />
-        <!--<action
+        <action
             android:id="@+id/action_homeFragment_to_gameActivity"
-            app:destination="@id/gameActivity" />-->
+            app:destination="@id/gameActivity" />
     </fragment>
     <fragment
         android:id="@+id/profileFragment"
@@ -30,9 +30,9 @@
         <action
             android:id="@+id/action_profileFragment_to_searchFragment"
             app:destination="@id/searchFragment" />
-        <!--<action
+        <action
             android:id="@+id/action_profileFragment_to_gameActivity"
-            app:destination="@id/gameActivity" />-->
+            app:destination="@id/gameActivity" />
     </fragment>
     <fragment
         android:id="@+id/searchFragment"
@@ -42,17 +42,17 @@
         <action
             android:id="@+id/action_searchFragment_to_homeFragment"
             app:destination="@id/homeFragment" />
-        <!--<action
+        <action
             android:id="@+id/action_searchFragment_to_gameActivity"
-            app:destination="@id/gameActivity" />-->
+            app:destination="@id/gameActivity" />
 
         <action
             android:id="@+id/action_searchFragment_to_profileFragment"
             app:destination="@id/profileFragment" />
     </fragment>
-    <!--<activity
+    <activity
         android:id="@+id/gameActivity"
         android:name="com.example.kursovaya_igdb.ui.gameDetails.GameActivity"
         android:label="activity_game"
-        tools:layout="@layout/activity_game" />-->
+        tools:layout="@layout/activity_game" />
 </navigation>
