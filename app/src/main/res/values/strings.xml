@@ -141,4 +141,7 @@
     <string name="platform_text">Platform</string>
     <string name="release_year_text">Release Year</string>
 
+    <!-- RemoveGameDialogFragment -->
+    <string name="RemoveGame">Are you sure to remove this game?</string>
+
 </resources>

@@ -1,66 +1,112 @@
 package com.example.kursovaya_igdb.ui.profile;
 
+import android.annotation.SuppressLint;
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.kursovaya_igdb.R;
+import com.example.kursovaya_igdb.adapter.RecyclerData;
+import com.example.kursovaya_igdb.adapter.RecyclerProfileViewAdapter;
+import com.example.kursovaya_igdb.model.GameApiResponse;
+import com.example.kursovaya_igdb.repository.IGamesRepository;
+import com.example.kursovaya_igdb.ui.viewModel.GamesViewModel;
+import com.example.kursovaya_igdb.ui.viewModel.GamesViewModelFactory;
+import com.example.kursovaya_igdb.util.ServiceLocator;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link WantedFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
+import java.io.IOException;
+import java.security.GeneralSecurityException;
+import java.util.ArrayList;
+
+
 public class WantedFragment extends Fragment {
-
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-
-    public WantedFragment() {
-        // Required empty public constructor
-    }
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment WantedFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static WantedFragment newInstance(String param1, String param2) {
-        WantedFragment fragment = new WantedFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
+    private ProgressBar progressBar;
+    private ArrayList<RecyclerData> recyclerDataArrayList;
+    private GamesViewModel gamesViewModel;
+    RecyclerProfileViewAdapter homeAdapter;
+    private RecyclerView recyclerView;
+    private TextView noGameTextView;
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
+        recyclerDataArrayList = new ArrayList<>();
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_wanted, container, false);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        recyclerView = requireView().findViewById(R.id.wantedRecyclerView);
+        homeAdapter = new RecyclerProfileViewAdapter(recyclerDataArrayList, getContext());
+        recyclerView.setAdapter(homeAdapter);
+        GridLayoutManager layoutManager = new GridLayoutManager(getContext(), 3);
+        recyclerView.setLayoutManager(layoutManager);
+        progressBar = requireView().findViewById(R.id.progressBar);
+        noGameTextView = requireView().findViewById(R.id.noGameText);
+        noGameTextView.setVisibility(View.GONE);
+        IGamesRepository iGamesRepository;
+        if (!checkNetwork(requireContext())){
+            Toast.makeText(requireContext(), R.string.no_connection, Toast.LENGTH_LONG).show();
+        }
+        try {
+            iGamesRepository = ServiceLocator.getInstance().getGamesRepository(requireActivity().getApplication());
+        } catch (GeneralSecurityException | IOException e) {
+            throw new RuntimeException(e);
+        }
+        if (iGamesRepository != null) {
+            gamesViewModel = new ViewModelProvider(this, new GamesViewModelFactory(iGamesRepository)).get(GamesViewModel.class);
+        }
+    }
+
+    @SuppressLint({"NotifyDataSetChanged", "SetTextI18n"})
+    private void observeViewModel() {
+        progressBar.setVisibility(View.VISIBLE);
+
+        gamesViewModel.getWantedGames(checkNetwork(requireContext())).observe(getViewLifecycleOwner(), gameApiResponses -> {
+            if (gameApiResponses.size() == 0){
+                noGameTextView.setVisibility(View.VISIBLE);
+            } else {
+                noGameTextView.setVisibility(View.GONE);
+            }
+            recyclerDataArrayList.clear();
+            for (GameApiResponse gameApiResponse : gameApiResponses){
+                recyclerDataArrayList.add(new RecyclerData(gameApiResponse.getId(),gameApiResponse.getCover().getUrl()));
+            }
+            homeAdapter.notifyDataSetChanged();
+            recyclerView.setVisibility(View.VISIBLE);
+            progressBar.setVisibility(View.GONE);
+        });
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        observeViewModel();
+    }
+    private boolean checkNetwork(Context context) {
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null;
     }
 }
