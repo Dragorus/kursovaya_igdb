@@ -16,6 +16,13 @@ public interface IGamesRepository {
     MutableLiveData<List<GameApiResponse>> fetchCompanyGames(String company);
     MutableLiveData<List<GameApiResponse>> fetchFranchiseGames(String franchise);
     MutableLiveData<List<GameApiResponse>> fetchGenreGames(String genre);
+    void updateWantedGame(GameApiResponse game);
+    void updatePlayingGame(GameApiResponse game);
+    void updatePlayedGame(GameApiResponse game);
+    MutableLiveData<List<GameApiResponse>> getWantedGames(boolean isFirstLoading);
+    MutableLiveData<List<GameApiResponse>> getPlayingGames(boolean isFirstLoading);
+    MutableLiveData<List<GameApiResponse>> getPlayedGames(boolean isFirstLoading);
+    MutableLiveData<List<GameApiResponse>> getForYouGames(long lastUpdate);
     MutableLiveData<List<GameApiResponse>> getSearchedGames(String userInput);
     MutableLiveData<List<GameApiResponse>> getSimilarGames(List<Integer> similarGames);
     MutableLiveData<List<GameApiResponse>> getAllPopularGames();

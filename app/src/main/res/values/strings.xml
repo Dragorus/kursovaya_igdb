@@ -38,6 +38,7 @@
     <string name="related_games">Related Games</string>
     <string name="NoRating">No rating available</string>
     <string name="no_platforms">No platforms available</string>
+    <string name="offline">You are offline!</string>
 
     <!-- PlayVideoDialogFragment -->
     <string name="cancel_text">Cancel</string>
@@ -143,5 +144,7 @@
 
     <!-- RemoveGameDialogFragment -->
     <string name="RemoveGame">Are you sure to remove this game?</string>
+
+    <!-- полностью скопировать BaseGamesLocalDataSource -->
 
 </resources>

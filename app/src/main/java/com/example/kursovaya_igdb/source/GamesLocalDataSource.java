@@ -160,4 +160,98 @@ public class GamesLocalDataSource extends BaseGamesLocalDataSource {
             }
         });
     }
+
+    @Override
+    public void updateWantedGame(GameApiResponse game) {
+
+        GamesRoomDatabase.databaseWriteExecutor.execute(() -> {
+            if (game != null) {
+                List<GameApiResponse> list = gamesDao.getAll();
+                for (GameApiResponse gameApiResponse : list){
+                    if (game.getId() == gameApiResponse.getId()){
+                        int rowUpdatedCounter = gamesDao.updateSingleWantedGame(game);
+                        // It means that the update succeeded because only one row had to be updated
+                        if (rowUpdatedCounter == 1) {
+                            Log.i("DAO", "Modifica al DB locale");
+                            GameApiResponse updatedGame = gamesDao.getGame(game.getId());
+                            Log.i("DAO", updatedGame.toString());
+                            gameCallback.onGameWantedStatusChanged(updatedGame, gamesDao.getWantedGame());
+                        } else {
+                            Log.i(getClass().getSimpleName(), "errore modifica al DB locale");
+                        }
+                    }
+                }
+
+            }
+        });
+    }
+
+    @Override
+    public void updatePlayingGame(GameApiResponse game) {
+        GamesRoomDatabase.databaseWriteExecutor.execute(() -> {
+            if (game != null) {
+                List<GameApiResponse> list = gamesDao.getAll();
+                for (GameApiResponse gameApiResponse : list) {
+                    if (game.getId() == gameApiResponse.getId()) {
+                        int rowUpdatedCounter = gamesDao.updateSinglePlayingGame(game);
+                        // It means that the update succeeded because only one row had to be updated
+                        if (rowUpdatedCounter == 1) {
+                            Log.i("DAO", "Modifica al DB locale");
+                            GameApiResponse updatedGame = gamesDao.getGame(game.getId());
+                            Log.i("DAO", updatedGame.toString());
+                            gameCallback.onGamePlayingStatusChanged(updatedGame, gamesDao.getPlayingGame());
+                        } else {
+                            Log.e(getClass().getSimpleName(), "error");
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    @Override
+    public void updatePlayedGame(GameApiResponse game) {
+        GamesRoomDatabase.databaseWriteExecutor.execute(() -> {
+            if (game != null) {
+                List<GameApiResponse> list = gamesDao.getAll();
+                for (GameApiResponse gameApiResponse : list) {
+                    if (game.getId() == gameApiResponse.getId()) {
+                        int rowUpdatedCounter = gamesDao.updateSinglePlayedGame(game);
+                        // It means that the update succeeded because only one row had to be updated
+                        if (rowUpdatedCounter == 1) {
+                            Log.i("DAO", "Modifica al DB locale");
+                            GameApiResponse updatedGame = gamesDao.getGame(game.getId());
+                            gameCallback.onGamePlayedStatusChanged(updatedGame, gamesDao.getPlayedGame());
+                        } else {
+                            Log.e(getClass().getSimpleName(), "error");
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    @Override
+    public void getWantedGames() {
+        GamesRoomDatabase.databaseWriteExecutor.execute(() -> {
+            List<GameApiResponse> gameApiResponses = gamesDao.getWantedGame();
+            gameCallback.onGameWantedStatusChanged(gameApiResponses);
+        });
+    }
+
+    @Override
+    public void getPlayingGames() {
+        GamesRoomDatabase.databaseWriteExecutor.execute(() -> {
+            List<GameApiResponse> gameApiResponses = gamesDao.getPlayingGame();
+            gameCallback.onGamePlayingStatusChanged(gameApiResponses);
+        });
+    }
+
+    @Override
+    public void getPlayedGames() {
+        GamesRoomDatabase.databaseWriteExecutor.execute(() -> {
+            List<GameApiResponse> gameApiResponses = gamesDao.getPlayedGame();
+            gameCallback.onGamePlayedStatusChanged(gameApiResponses);
+        });
+    }
 }

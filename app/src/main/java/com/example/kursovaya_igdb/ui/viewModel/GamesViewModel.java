@@ -22,6 +22,9 @@ public class GamesViewModel extends ViewModel {
     public GamesViewModel(IGamesRepository iGamesRepository) {
         this.iGamesRepository = iGamesRepository;
     }
+    public MutableLiveData<GameApiResponse> getGame(int id) {
+        return iGamesRepository.fetchGame(id);
+    }
     public MutableLiveData<List<GameApiResponse>> getPopularGames(long lastUpdate, boolean networkAvailable) {
         if (popularGames == null){
             return popularGames = iGamesRepository.fetchPopularGames(lastUpdate, networkAvailable);
@@ -72,6 +75,30 @@ public class GamesViewModel extends ViewModel {
         return franchiseGames;
     }
 
+    public MutableLiveData<List<GameApiResponse>> getWantedGames(boolean isFirstLoading) {
+        return iGamesRepository.getWantedGames(isFirstLoading);
+
+    }
+
+    public MutableLiveData<List<GameApiResponse>> getPlayingGames(boolean isFirstLoading) {
+        return iGamesRepository.getPlayingGames(isFirstLoading);
+    }
+
+    public MutableLiveData<List<GameApiResponse>> getPlayedGames(boolean isFirstLoading) {
+        return iGamesRepository.getPlayedGames(isFirstLoading);
+    }
+    public void updateWantedGame(GameApiResponse game){
+        iGamesRepository.updateWantedGame(game);
+    }
+    public void updatePlayingGame(GameApiResponse game) {
+        iGamesRepository.updatePlayingGame(game);
+    }
+    public void updatePlayedGame(GameApiResponse game) {
+        iGamesRepository.updatePlayedGame(game);
+    }
+    public MutableLiveData<List<GameApiResponse>> getForYouGames(long lastUpdate) {
+        return iGamesRepository.getForYouGames(lastUpdate);
+    }
 
     public MutableLiveData<List<GameApiResponse>> getSearchedGames(String userInput) {
         return iGamesRepository.getSearchedGames(userInput);

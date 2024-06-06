@@ -80,7 +80,26 @@ public class GameActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         int idGame = intent.getIntExtra("idGame", 1020);
+        progressBar = findViewById(R.id.progressBar);
+        if (checkNetwork()) {
+            progressBar.setVisibility(View.VISIBLE);
+        }
+        IGamesRepository iGamesRepository;
+        try {
+            iGamesRepository = ServiceLocator.getInstance().getGamesRepository(getApplication());
+        } catch (GeneralSecurityException | IOException e) {
+            throw new RuntimeException(e);
+        }
 
+        if (iGamesRepository != null) {
+            gamesViewModel = new ViewModelProvider(this, new GamesViewModelFactory(iGamesRepository)).get(GamesViewModel.class);
+        }
+
+        gamesViewModel.getGame(idGame).observe(this, result -> {
+            progressBar.setVisibility(View.GONE);
+            game = result;
+            onSuccess();
+        });
     }
 
     @SuppressLint("SetTextI18n")
@@ -138,6 +157,87 @@ public class GameActivity extends AppCompatActivity {
         if (new Date(game.getFirstReleaseDate() * 1000L).compareTo(today.getTime()) > 0) {
             playedButton.setVisibility(View.GONE);
         }
+
+        setWantedButton(sharedPreferencesUtil);
+        setPlayedButton(sharedPreferencesUtil);
+    }
+
+    @SuppressLint("SetTextI18n")
+    private void setPlayedButton(SharedPreferencesUtil sharedPreferencesUtil) {
+        boolean isFirstLoading = sharedPreferencesUtil.readBooleanData(Constants.SHARED_PREFERENCES_FILE_NAME,
+                Constants.SHARED_PREFERENCES_FIRST_LOADING_PLAYED);
+        gamesViewModel.getPlayedGames(isFirstLoading).observe(this, gameApiResponses -> {
+            for (GameApiResponse gameApiResponse : gameApiResponses) {
+                if (gameApiResponse.getId() == game.getId() && gameApiResponse.isPlayed()) {
+                    this.game.setPlayed(true);
+                    playedButton.setText("✓ " + getString(R.string.played));
+                    wantedButton.setVisibility(View.GONE);
+                    break;
+                }
+            }
+        });
+        isFirstLoading = sharedPreferencesUtil.readBooleanData(Constants.SHARED_PREFERENCES_FILE_NAME,
+                Constants.SHARED_PREFERENCES_FIRST_LOADING_PLAYING);
+        gamesViewModel.getPlayingGames(isFirstLoading).observe(this, gameApiResponses -> {
+            for (GameApiResponse gameApiResponse : gameApiResponses) {
+                if (gameApiResponse.getId() == game.getId() && gameApiResponse.isPlaying()) {
+                    this.game.setPlaying(true);
+                    playedButton.setText("✓ " + getString(R.string.playing));
+                    wantedButton.setVisibility(View.GONE);
+                    break;
+                }
+            }
+        });
+        playedButton.setOnClickListener(v -> {
+            if(!checkNetwork()){
+                Toast.makeText(this, R.string.offline, Toast.LENGTH_SHORT).show();
+                return;
+            }
+            DialogFragment dialogFragment;
+            if (!game.isPlayed() && !game.isPlaying()) {
+                dialogFragment = new PlayedButtonDialogFragment(gamesViewModel, game);
+            } else {
+                dialogFragment = new RemoveGameDialogFragment(this, gamesViewModel, game);
+            }
+            dialogFragment.show(getSupportFragmentManager(), "Dialog");
+        });
+    }
+
+    @SuppressLint("SetTextI18n")
+    private void setWantedButton(SharedPreferencesUtil sharedPreferencesUtil) {
+        boolean isFirstLoading = sharedPreferencesUtil.readBooleanData(Constants.SHARED_PREFERENCES_FILE_NAME,
+                Constants.SHARED_PREFERENCES_FIRST_LOADING_WANTED);
+        gamesViewModel.getWantedGames(isFirstLoading).observe(this, gameApiResponses -> {
+            if (isFirstLoading) {
+                sharedPreferencesUtil.writeBooleanData(Constants.SHARED_PREFERENCES_FILE_NAME,
+                        Constants.SHARED_PREFERENCES_FIRST_LOADING_WANTED, false);
+            }
+            for (GameApiResponse gameApiResponse : gameApiResponses) {
+                if (gameApiResponse.getId() == game.getId() && gameApiResponse.isWanted()) {
+                    this.game.setWanted(true);
+                    wantedButton.setText("✓ " + getString(R.string.wanted));
+                    playedButton.setVisibility(View.GONE);
+                    break;
+                }
+            }
+        });
+
+        wantedButton.setOnClickListener(v -> {
+            if(!checkNetwork()){
+                Toast.makeText(this, R.string.offline, Toast.LENGTH_SHORT).show();
+                return;
+            }
+            if (game.isWanted()) {
+                game.setWanted(false);
+                gamesViewModel.updateWantedGame(game);
+                wantedButton.setText(R.string.wanted);
+                playedButton.setVisibility(View.VISIBLE);
+            } else {
+                game.setWanted(true);
+                game.setAdded(today.getTimeInMillis());
+                gamesViewModel.updateWantedGame(game);
+            }
+        });
     }
 
     private void showRelatedGames() {
@@ -161,6 +261,12 @@ public class GameActivity extends AppCompatActivity {
         });
     }
 
+    private boolean checkNetwork() {
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null;
+    }
 
     private void showScreenshots() {
         recyclerView = findViewById(R.id.screenshotsRecyclerView);

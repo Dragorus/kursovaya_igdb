@@ -10,8 +10,10 @@ import androidx.lifecycle.MutableLiveData;
 import com.example.kursovaya_igdb.model.GameApiResponse;
 import com.example.kursovaya_igdb.source.BaseGamesDataSource;
 import com.example.kursovaya_igdb.source.BaseGamesLocalDataSource;
+import com.example.kursovaya_igdb.source.BaseSavedGamesDataSource;
 import com.example.kursovaya_igdb.source.GameCallback;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -140,6 +142,39 @@ public class GamesRepository implements IGamesRepository, GameCallback {
     }
 
     @Override
+    public void updateWantedGame(GameApiResponse game) {
+        gamesLocalDataSource.updateWantedGame(game);
+    }
+
+    @Override
+    public void updatePlayingGame(GameApiResponse game) {
+        gamesLocalDataSource.updatePlayingGame(game);
+    }
+
+    @Override
+    public void updatePlayedGame(GameApiResponse game) {
+        gamesLocalDataSource.updatePlayedGame(game);
+    }
+
+    @Override
+    public MutableLiveData<List<GameApiResponse>> getWantedGames(boolean isFirstLoading) {
+        gamesLocalDataSource.getWantedGames();
+        return wantedGamesMutableLiveData;
+    }
+
+    @Override
+    public MutableLiveData<List<GameApiResponse>> getPlayingGames(boolean isFirstLoading) {
+        gamesLocalDataSource.getPlayingGames();
+        return playingGamesMutableLiveData;
+    }
+
+    @Override
+    public MutableLiveData<List<GameApiResponse>> getPlayedGames(boolean isFirstLoading) {
+        gamesLocalDataSource.getPlayedGames();
+        return playedGamesMutableLiveData;
+    }
+
+    @Override
     public MutableLiveData<List<GameApiResponse>> getSearchedGames(String userInput) {
         if (userInput != null)
             gamesDataSource.getSearchedGames(userInput);
@@ -182,6 +217,32 @@ public class GamesRepository implements IGamesRepository, GameCallback {
             gamesDataSource.getFilteredGames(genre, platform, year);
         }
         return filteredGamesMutableLiveData;
+    }
+
+    @Override
+    public MutableLiveData<List<GameApiResponse>> getForYouGames(long lastUpdate) {
+        List<Integer> gamesId = new ArrayList<>();
+        int limit = 0;
+        if (playedGamesMutableLiveData != null && playedGamesMutableLiveData.getValue() != null) {
+            int size = playedGamesMutableLiveData.getValue().size();
+            if (size <= 2) {
+                limit = 2;
+            } else if (size <=6) {
+                limit = 5;
+            } else {
+                limit = 10;
+            }
+            int cont = 0;
+            for (int i = 0; i < size && cont <= limit; i++) {
+                GameApiResponse game = playedGamesMutableLiveData.getValue().get(i);
+                gamesId.add(game.getSimilarGames().get(0));
+                gamesId.add(game.getSimilarGames().get(4));
+                cont+=2;
+            }
+        }
+        assert playedGamesMutableLiveData != null;
+        gamesDataSource.getForYouGames(gamesId, limit);
+        return forYouGamesMutableLiveData;
     }
 
 
@@ -267,6 +328,82 @@ public class GamesRepository implements IGamesRepository, GameCallback {
         Log.i("tutto", "eliminato");
     }
 
+    @Override
+    public void onGameWantedStatusChanged(GameApiResponse updatedGame, List<GameApiResponse> wantedGames) {
+        List<GameApiResponse> allWanted = wantedGamesMutableLiveData.getValue();
+
+        if (allWanted != null) {
+            for (GameApiResponse gameApiResponse : allWanted) {
+                if (gameApiResponse.getId() == updatedGame.getId()) {
+                    Log.i("ongamewantedstatuschanged", updatedGame.toString());
+                    allWanted.set(allWanted.indexOf(gameApiResponse), updatedGame);
+                }
+            }
+        }
+        wantedGamesMutableLiveData.postValue(allWanted);
+    }
+
+    @Override
+    public void onGameWantedStatusChanged(List<GameApiResponse> wantedGames) {
+        List<GameApiResponse> notSynchronizedNewsList = new ArrayList<>();
+        for (GameApiResponse game : wantedGames) {
+            if (!game.isSynchronized()) {
+                notSynchronizedNewsList.add(game);
+            }
+        }
+
+        wantedGamesMutableLiveData.postValue(wantedGames);
+    }
+
+    @Override
+    public void onGamePlayingStatusChanged(GameApiResponse updatedGame, List<GameApiResponse> playingGames) {
+        List<GameApiResponse> allPlaying = playingGamesMutableLiveData.getValue();
+        if (allPlaying != null) {
+            for (GameApiResponse gameApiResponse : allPlaying) {
+                if (gameApiResponse.getId() == updatedGame.getId()) {
+                    allPlaying.set(allPlaying.indexOf(gameApiResponse), updatedGame);
+                }
+            }
+        }
+        playingGamesMutableLiveData.postValue(allPlaying);
+    }
+
+    @Override
+    public void onGamePlayingStatusChanged(List<GameApiResponse> playingGames) {
+        List<GameApiResponse> notSynchronizedNewsList = new ArrayList<>();
+        for (GameApiResponse game : playingGames) {
+            if (!game.isSynchronized()) {
+                notSynchronizedNewsList.add(game);
+            }
+        }
+
+
+        playingGamesMutableLiveData.postValue(playingGames);
+    }
+
+    @Override
+    public void onGamePlayedStatusChanged(GameApiResponse updatedGame, List<GameApiResponse> playedGames) {
+        List<GameApiResponse> allPlayed = playedGamesMutableLiveData.getValue();
+        if (allPlayed != null) {
+            for (GameApiResponse gameApiResponse : allPlayed) {
+                if (gameApiResponse.getId() == updatedGame.getId()) {
+                    allPlayed.set(allPlayed.indexOf(gameApiResponse), updatedGame);
+                }
+            }
+        }
+        playedGamesMutableLiveData.postValue(allPlayed);
+    }
+
+    @Override
+    public void onGamePlayedStatusChanged(List<GameApiResponse> playedGames) {
+        List<GameApiResponse> notSynchronizedNewsList = new ArrayList<>();
+        for (GameApiResponse game : playedGames) {
+            if (!game.isSynchronized()) {
+                notSynchronizedNewsList.add(game);
+            }
+        }
+        playedGamesMutableLiveData.postValue(playedGames);
+    }
 
     @Override
     public void onSuccessFromCloudReading(List<GameApiResponse> games, String wanted) {
@@ -295,6 +432,29 @@ public class GamesRepository implements IGamesRepository, GameCallback {
         }
     }
 
+    @Override
+    public void onSuccessFromCloudWriting(GameApiResponse game, String wanted) {
+        switch (wanted) {
+            case "WANTED":
+                if (game != null && !game.isWanted()) {
+                    game.setSynchronized(false);
+                }
+                gamesLocalDataSource.updateWantedGame(game);
+                break;
+            case "PLAYING":
+                if (game != null && !game.isPlaying()) {
+                    game.setSynchronized(false);
+                }
+                gamesLocalDataSource.updatePlayingGame(game);
+                break;
+            case "PLAYED":
+                if (game != null && !game.isPlayed()) {
+                    game.setSynchronized(false);
+                }
+                gamesLocalDataSource.updatePlayedGame(game);
+                break;
+        }
+    }
 
     @Override
     public void onFailureFromCloud(Exception e) {

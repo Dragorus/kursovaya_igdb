@@ -17,4 +17,8 @@ public class Constants {
     public static final String ENCRYPTED_SHARED_PREFERENCES_FILE_NAME = "com.example.kursovaya_igdb.encrypted_preferences";
     public static final String SHARED_PREFERENCES_FILE_NAME = "com.example.kursovaya_igdb.preferences";
     public static final String ENCRYPTED_DATA_FILE_NAME = "com.example.kursovaya_igdb.encrypted_file.txt";
+
+    public static final String SHARED_PREFERENCES_FIRST_LOADING_WANTED = "first_loading";
+    public static final String SHARED_PREFERENCES_FIRST_LOADING_PLAYING = "first_loading";
+    public static final String SHARED_PREFERENCES_FIRST_LOADING_PLAYED = "first_loading";
 }
